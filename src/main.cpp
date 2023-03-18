@@ -363,7 +363,7 @@ void opcontrol() {
     }
     */
     
-    if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280) {
+    if (optical_sensor.get_hue() >= 345 && optical_sensor.get_hue() <= 360 || optical_sensor.get_hue() >= 0 && optical_sensor.get_hue() <= 15) {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
