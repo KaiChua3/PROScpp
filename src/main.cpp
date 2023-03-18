@@ -75,6 +75,7 @@ void competition_initialize() {}
 #define INDEX3_PORT 3
 #define OPTICAL_PORT 1
 #define VISION_PORT 20
+#define OPTICAL_PORT_BACK 4
 void turn_left() {
  pros::Task::delay(10);
   pros::Motor left_wheels (LEFT_WHEELS_PORT);
@@ -330,6 +331,7 @@ void opcontrol() {
   pros::Motor indexerPush (INDEX2_PORT);
   pros::Optical optical_sensor(OPTICAL_PORT);
   pros::Controller master (CONTROLLER_MASTER);
+  pros::Optical optical_sensor_back(OPTICAL_PORT_BACK);
   bool isPressedExpansion = master.get_digital(DIGITAL_X);
   pistonExpansion.set_value(true);
   pistonExpansion2.set_value(true);
@@ -364,6 +366,11 @@ void opcontrol() {
     */
     
     if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280) {
+      roller.move_velocity(100);
+    } else {
+      roller.move_velocity(0);
+    }
+    if (optical_sensor_back.get_hue() >= 210 && optical_sensor_back.get_hue() <= 280) {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
