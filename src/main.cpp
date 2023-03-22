@@ -26,10 +26,8 @@ void on_center_button() {
  */
 void initialize() {
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
-
+	pros::lcd::set_text(1,"Hello PROS User!");
 	pros::lcd::register_btn1_cb(on_center_button);
-
 	pros::ADIDigitalOut piston ('A');
 }
 
@@ -62,75 +60,22 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-#define Motor_Port 18
-#define DIGITAL_SENSOR_PORT 'B'
-#define EXPANSIONPNEUMATIC 'A'
-#define IntakeMotor_PORT 17
-#define LEFT_WHEELS_PORT 15
-#define RIGHT_WHEELS_PORT 16
-#define LEFT_WHEELS_BACK_PORT 11
-#define RIGHT_WHEELS_BACK_PORT 12
-#define ROLLER_MOTOR_PORT 13
-#define INDEX2_PORT 14
-#define INDEX3_PORT 3
-#define OPTICAL_PORT 1
-#define VISION_PORT 20
-#define OPTICAL_PORT_BACK 4
-void turn_left() {
- pros::Task::delay(10);
-  pros::Motor left_wheels (LEFT_WHEELS_PORT);
-  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
-  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
-  pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
-  pros::Motor roller (ROLLER_MOTOR_PORT, true);
-  pros::Motor_Group left_drivetrain({right_wheels,right_wheels_back});
-  pros::Motor_Group right_drivetrain({left_wheels,left_wheels_back});
-  pros::Motor_Group all_drivetrain({left_wheels,right_wheels,left_wheels_back,right_wheels_back});
-right_drivetrain.move_velocity(300);
-left_drivetrain.move_velocity(-300);
-pros::delay(500);
-right_drivetrain.move_velocity(0);
-left_drivetrain.move_velocity(0);
-}
-void turn_right() {
-   pros::Task::delay(10);
-  pros::Motor left_wheels (LEFT_WHEELS_PORT);
-  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
-  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
-  pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
-  pros::Motor roller (ROLLER_MOTOR_PORT, true);
-  pros::Motor_Group left_drivetrain({right_wheels,right_wheels_back});
-  pros::Motor_Group right_drivetrain({left_wheels,left_wheels_back});
-  pros::Motor_Group all_drivetrain({left_wheels,right_wheels,left_wheels_back,right_wheels_back});
-  left_drivetrain.move_velocity(300);
-  right_drivetrain.move_velocity(-300);
-  pros::delay(500);
-  left_drivetrain.move_velocity(0);
-  right_drivetrain.move_velocity(0);
-}
-void spin_roller() {
-	  pros::Motor roller (ROLLER_MOTOR_PORT, true);
-	  roller.move_velocity(150);
-	  pros::delay(500);
-	  roller.move_velocity(0);
-}
-void move_bot_forward() {
-   pros::Task::delay(10);
-  pros::Motor left_wheels (LEFT_WHEELS_PORT);
-  pros::Motor right_wheels (RIGHT_WHEELS_PORT, true); // This reverses the motor
-  pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
-  pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
-  pros::Motor roller (ROLLER_MOTOR_PORT, true);
-  pros::Motor_Group left_drivetrain({right_wheels,right_wheels_back});
-  pros::Motor_Group right_drivetrain({left_wheels,left_wheels_back});
-  pros::Motor_Group all_drivetrain({left_wheels,right_wheels,left_wheels_back,right_wheels_back});
-  all_drivetrain.move_velocity(300);
-  pros::delay(500);
-  all_drivetrain.move_velocity(0);
-}
+#define Motor_Port 18 //Flywheel Motor
+#define DIGITAL_SENSOR_PORT 'B' //Exapansion
+#define EXPANSIONPNEUMATIC 'A' //Same thing as above
+#define IntakeMotor_PORT 17 //Intake
+#define LEFT_WHEELS_PORT 15 //Front left wheel of drivetrain
+#define RIGHT_WHEELS_PORT 16 //Front right wheel of drivetrain
+#define LEFT_WHEELS_BACK_PORT 11 //Back left wheel of drivetrain
+#define RIGHT_WHEELS_BACK_PORT 12 //Back right wheel of drivetrain
+#define ROLLER_MOTOR_PORT 13 //Roller
+#define OPTICAL_PORT 1 //Front Optical Sensor
+#define VISION_PORT 20 //Vision Sensor
+#define OPTICAL_PORT_BACK 4 //Side Optical Sensor
+
 void autonomous() {
-  pros::Task::delay(10);
-   pros::Motor Flywheel (Motor_Port, true);
+  pros::delay(10);
+  pros::Motor Flywheel (Motor_Port, true);
   pros::ADIDigitalOut pistonExpansion2 (DIGITAL_SENSOR_PORT);
   pros::ADIDigitalOut pistonExpansion (EXPANSIONPNEUMATIC);
   pros::Motor intake (IntakeMotor_PORT);
@@ -139,11 +84,10 @@ void autonomous() {
   pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
   pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
   pros::Motor roller (ROLLER_MOTOR_PORT, true);
-  pros::Motor indexerPush (INDEX2_PORT);
   pros::Optical optical_sensor(OPTICAL_PORT);
   pros::Motor_Group left_drivetrain({left_wheels,left_wheels_back});
   pros::Motor_Group right_drivetrain({right_wheels,right_wheels_back});
-  //New Auton
+  //Auton for Worlds
   //
   //**START OF AUTON**
   //
@@ -153,13 +97,14 @@ void autonomous() {
   pros::delay(2000);
   //
   //Spins roller while moving backwards
+  //Uses Optical sensor to spin roller until color is not detected
   //
   left_drivetrain.move_velocity(-300);
   right_drivetrain.move_velocity(-300);
-  indexerPush.move_velocity(-125);
-  pros::delay(200);
-  roller.move_velocity(-400);
-  pros::delay(5000);
+  if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280) {
+    roller.move_velocity(-125);
+  }
+  pros::delay(2000);
   left_drivetrain.move_velocity(0);
   right_drivetrain.move_velocity(0);
   roller.move_velocity(0);
@@ -173,135 +118,9 @@ void autonomous() {
   left_drivetrain.move_velocity(0);
   right_drivetrain.move_velocity(0);
   pros::delay(1);
-  //
-  //Spin up flywheel
-  //
-  Flywheel.move_velocity(75);
-  pros::delay(3000);
-  //
-  //Indexer is pushed up; getting ready to fire
-  //
-  Flywheel.move_velocity(75);
-  indexerPush.move_velocity(125);
-  pros::delay(50);
-  //
-  //Flywheel shoots the disc/discs
-  //
-  Flywheel.move_velocity(75);
-  indexerPush.move_velocity(125);
-  roller.move_velocity(-100);
-  intake.move_velocity(210);
-  pros::delay(1000);
-  indexerPush.move_velocity(0);
-  roller.move_velocity(0);
-  intake.move_velocity(0);
-  Flywheel.move_velocity(0);
-  pros::delay(1);
 //
 // **END OF AUTON**
 //
-  
-  
-/**
-right_drivetrain.move_velocity(300);
-left_drivetrain.move_velocity(-300);
-pros::delay(500);
-right_drivetrain.move_velocity(0);
-left_drivetrain.move_velocity(0);
-pros::delay(1);
-*/
-/** Old Auton DO NOT USE
-pistonExpansion.set_value(false);
-left_drivetrain.move_velocity(300);
-right_drivetrain.move_velocity(300);
-pros::delay(500);
-left_drivetrain.move_velocity(300);
-right_drivetrain.move_velocity(300);
-roller.move_velocity(180);
-pros::delay(1000);
-roller.move_velocity(180);
-all_drivetrain.move_velocity(0);
-pros::delay(1);
-//Beyond here is the new auton
-
-left_drivetrain.move_velocity(-65);
-right_drivetrain.move_velocity(-50);
-roller.move_velocity(180);
-//Move backwards to position bot
-pros::delay(500);
-right_drivetrain.move_velocity(0);
-left_drivetrain.move_velocity(0);
-roller.move_velocity(0);
-pros::delay(100);
-left_drivetrain.move_velocity(65);
-right_drivetrain.move_velocity(-50);
-//Turns bot to face goal
-pros::delay(315);
-right_drivetrain.move_velocity(0);
-left_drivetrain.move_velocity(0);
-pros::delay(1);
-rightFlywheel.move_velocity(99);
-  //Spin up flywheel
-pros::delay(4000);
-rightFlywheel.move_velocity(99);
-pistonFlywheel.set_value(true);
-//Shoots disc into goal first time
-pros::delay(100);
-pistonFlywheel.set_value(false);
-pros::delay(100);
-rightFlywheel.move_velocity(99);
-pros::delay(1000);
-rightFlywheel.move_velocity(99);
-pistonFlywheel.set_value(true);
-//Shoots disc into goal second time
-pros::delay(100);
-rightFlywheel.move_velocity(0);
-pistonFlywheel.set_value(false);
-pros::delay(1);
-*/
-
-//This auton drives to the middle of the field and turn to the goal to shoot it
-//This auton is not necessary since you only need to spin up and shoot from roller position
-/**
-left_drivetrain.move_velocity(65);
-right_drivetrain.move_velocity(-50);
-//Turns bot to flywheel facing parralel to goal; going to move to other tile
-pros::delay(800);
-right_drivetrain.move_velocity(0);
-left_drivetrain.move_velocity(0);
-pros::delay(1);
-left_drivetrain.move_velocity(-65);
-right_drivetrain.move_velocity(-50);
-//Moves forward until middle of field
-pros::delay(5000);
-right_drivetrain.move_velocity(0);
-left_drivetrain.move_velocity(0);
-pros::delay(1);
-left_drivetrain.move_velocity(-65);
-right_drivetrain.move_velocity(50);
-//Turns bot to face goal
-pros::delay(1400);
-right_drivetrain.move_velocity(0);
-left_drivetrain.move_velocity(0);
-pros::delay(1);
-rightFlywheel.move_velocity(170);
-leftFlywheel.move_velocity(150);
-//Spin up flywheel
-pros::delay(2000);
-rightFlywheel.move_velocity(170);
-leftFlywheel.move_velocity(150);
-pistonFlywheel.set_value(true);
-//Shoots disc into goal
-pros::delay(100);
-*/
-//End of auton
-
-//Not useful anymore; drivetrain and roller activated at the same time
-/**
-roller.move_velocity(150);
-pros::delay(500);
-roller.move_velocity(0);
-*/
 }
 
 /**
@@ -328,11 +147,13 @@ void opcontrol() {
   pros::Motor left_wheels_back (LEFT_WHEELS_BACK_PORT );
   pros::Motor right_wheels_back (RIGHT_WHEELS_BACK_PORT, true);
   pros::Motor roller (ROLLER_MOTOR_PORT, true);
-  pros::Motor indexerPush (INDEX2_PORT);
   pros::Optical optical_sensor(OPTICAL_PORT);
   pros::Controller master (CONTROLLER_MASTER);
   pros::Optical optical_sensor_back(OPTICAL_PORT_BACK);
   bool isPressedExpansion = master.get_digital(DIGITAL_X);
+  /**
+  Sets expansion so it won't release; just a precaution in case initial set values are reversed
+  */
   pistonExpansion.set_value(true);
   pistonExpansion2.set_value(true);
   optical_sensor.set_led_pwm(100);
@@ -340,42 +161,45 @@ void opcontrol() {
     pistonExpansion.set_value(true);
     pistonExpansion2.set_value(true);
     isPressedExpansion = master.get_digital(DIGITAL_X);
+    //
+    //If Button R1 is pressed, Flywheel will begin to spin
+    //
     if (master.get_digital(DIGITAL_R1)) {
-      //Motor1 was moving at 100 to whoever made it 100; let me know if it was intentional
       Flywheel.move_velocity(135);
     } else {
       Flywheel.move_velocity(0);
-    } 
-
+    }
+    /**
+    If Button L1 is pressed, intake turns clockwise
+    */
     if (master.get_digital(DIGITAL_L1)){
       intake.move_velocity(210);
-    } else if (master.get_digital(DIGITAL_R2)){
+    } 
+    //If Button R2 is pressed, intake turns counter clockwise (old feature from A team bot MAY NOT BE NECESSARY)
+    else if (master.get_digital(DIGITAL_R2)){
       intake.move_velocity(-210);
     } else {
       intake.move_velocity(0);
     }
-
-    /**if (master.get_digital(DIGITAL_L2)) {
-      indexerPush.move_velocity(-125);
-      pros::delay(200);
-      roller.move_velocity(-450);
-    } else {
-      roller.move_velocity(0);
-      indexerPush.move_velocity(0);
-    }
+    /**
+    Optical Sensor code:
+    When color (red) is detected, motor will begin to spin
+    Needs to change to spin for blue
+    There are 2 if statements since there is gonna be 2 optical sensors
     */
-    
     if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280) {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
     }
-    if (optical_sensor_back.get_hue() >= 210 && optical_sensor_back.get_hue() <= 280) {
+    if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280) {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
     }
-
+    /**
+    If Button X is pressed, expansion will activate
+    */
     if(isPressedExpansion){
         pistonExpansion.set_value(false);
         pistonExpansion2.set_value(false);
@@ -384,75 +208,9 @@ void opcontrol() {
         pistonExpansion.set_value(true);
         pistonExpansion2.set_value(true);
     } 
-
-
     left_wheels.move(master.get_analog(ANALOG_LEFT_Y));
     left_wheels_back.move(master.get_analog(ANALOG_LEFT_Y));
     right_wheels.move(master.get_analog(ANALOG_RIGHT_Y) * 10);
     right_wheels_back.move(master.get_analog(ANALOG_RIGHT_Y) * 10);
   }
-
-  /** Old Code: FOR OLD BOT MAY NOT WORK FOR NEW BOT
-  pistonExpansion.set_value(true);
-  pistonExpansion2.set_value(true);
-  while (true) {
-  pistonExpansion.set_value(true);
-  pistonExpansion2.set_value(true);
-	isPressedExpansion = master.get_digital(DIGITAL_X);
-	if (master.get_digital(DIGITAL_R1)) {
-    //Motor1 was moving at 100 to whoever made it 100; let me know if it was intentional
-		rightFlywheel.move_velocity(-150);
-	} else {
-		rightFlywheel.move_velocity(0);
-	}
-
-	if (master.get_digital(DIGITAL_L1)) {
-		//intake.move(-127);
-		intake.move_velocity(150);
-  } else {
-		//intake.move(0);
-		intake.move_velocity(0);
-	}
-
-	if (master.get_digital(DIGITAL_R2)) {
-		roller.move_velocity(100);
-	} else if (master.get_digital(DIGITAL_L2)){
-		roller.move_velocity(-100);
-	} else {
-    roller.move_velocity(0);
-  }
-  //Indexer code ***FOR TESTING ONLY*** COMMENT OUT LATER
-  if (master.get_digital(DIGITAL_UP)) {
-    index1.move_velocity(125);
-  } else {
-    index1.move_velocity(0);
-  }
-  if (master.get_digital(DIGITAL_DOWN)) {
-    index2.move_velocity(-100);
-  } else {
-    index2.move_velocity(0);
-  }
-  if (master.get_digital(DIGITAL_A)) {
-    index3.move_velocity(210);
-  } else {
-    index3.move_velocity(0);
-  }
-//Reversed because pnuematics is weird
-	if(isPressedExpansion){
-		pistonExpansion.set_value(false);
-    pistonExpansion2.set_value(false);
-		pros::delay(2);
-	} else if (!isPressedExpansion) {
-		pistonExpansion.set_value(true);
-    pistonExpansion2.set_value(true);
-	} 
-	left_wheels.move(master.get_analog(ANALOG_LEFT_Y)*1.3);
-	left_wheels_back.move(master.get_analog(ANALOG_LEFT_Y)*1.3);
-  right_wheels.move(master.get_analog(ANALOG_RIGHT_Y));
-	right_wheels_back.move(master.get_analog(ANALOG_RIGHT_Y));
-	
-    pros::delay(2);
-  }
-  */
-
 }
