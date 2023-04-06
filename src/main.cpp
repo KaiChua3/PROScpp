@@ -1,21 +1,25 @@
 #include "main.h"
 #include "pros/motors.hpp"
 #include <chrono>
+#include <string>
 
 /**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+Button to switch between red and blue
+Creates button object 
+*/
+lv_obj_t * changeColor;
+lv_obj_t * buttonLabel;
+bool redOrBlue = false; //Red is false | Blue is true
+char* buttonText = "r";
+static lv_res_t btn_click_action(lv_obj_t * btn)
+{
+  redOrBlue = !redOrBlue;
+  if (redOrBlue == true) {
+    buttonText = "b";
+  } else if (redOrBlue == false) {
+    buttonText = "r";
+  }
+  return LV_RES_OK;
 }
 
 /**
@@ -24,13 +28,14 @@ void on_center_button() {
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1,"Hello PROS User!");
-	pros::lcd::register_btn1_cb(on_center_button);
-	pros::ADIDigitalOut piston ('A');
-}
 
+void initialize() {
+	changeColor = lv_btn_create(lv_scr_act(),NULL);
+  lv_btn_set_action(changeColor, LV_BTN_ACTION_CLICK, btn_click_action);
+  lv_obj_set_size(changeColor, 200, 50);
+  buttonLabel = lv_label_create(changeColor, NULL);
+  lv_label_set_text(buttonLabel, buttonText);
+}
 /**
  * Runs while the robot is in the disabled state of Field Management System or
  * the VEX Competition Switch, following either autonomous or opcontrol. When
@@ -187,12 +192,12 @@ void opcontrol() {
     Needs to change to spin for blue
     There are 2 if statements since there is gonna be 2 optical sensors
     */
-    if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280) {
+    if (optical_sensor.get_hue() >= 345 && optical_sensor.get_hue() <= 360 || optical_sensor.get_hue() >= 0 && optical_sensor.get_hue() <= 15 && redOrBlue == true) {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
     }
-    if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280) {
+    if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280 && redOrBlue == false) {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
@@ -200,7 +205,7 @@ void opcontrol() {
     /**
     If Button X is pressed, expansion will activate
     */
-    if(isPressedExpansion){
+    if(isPressedExpansion) {
         pistonExpansion.set_value(false);
         pistonExpansion2.set_value(false);
       pros::delay(2);
