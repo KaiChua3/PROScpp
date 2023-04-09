@@ -1,19 +1,19 @@
 #include "main.h"
 #include "pros/motors.hpp"
 #include <chrono>
-#include <string>
-
 /**
 Button to switch between red and blue
 Creates button object 
 */
 lv_obj_t * changeColor;
 lv_obj_t * buttonLabel;
+lv_obj_t * setLabel;
 bool redOrBlue = false; //Red is false | Blue is true
 char* buttonText = "r";
 static lv_res_t btn_click_action(lv_obj_t * btn)
 {
   redOrBlue = !redOrBlue;
+  lv_label_set_text(setLabel,"Was clicked");
   if (redOrBlue == true) {
     buttonText = "b";
   } else if (redOrBlue == false) {
@@ -35,6 +35,8 @@ void initialize() {
   lv_obj_set_size(changeColor, 200, 50);
   buttonLabel = lv_label_create(changeColor, NULL);
   lv_label_set_text(buttonLabel, buttonText);
+  setLabel = lv_label_create(lv_scr_act(),NULL);
+  lv_label_set_text(setLabel,"Funny");
 }
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -162,6 +164,7 @@ void opcontrol() {
   pistonExpansion.set_value(true);
   pistonExpansion2.set_value(true);
   optical_sensor.set_led_pwm(100);
+  pros::delay(100);
   while (true) {
     pistonExpansion.set_value(true);
     pistonExpansion2.set_value(true);
