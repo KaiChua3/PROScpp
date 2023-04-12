@@ -195,12 +195,12 @@ void opcontrol() {
     Needs to change to spin for blue
     There are 2 if statements since there is gonna be 2 optical sensors
     */
-    if (optical_sensor.get_hue() >= 345 && optical_sensor.get_hue() <= 360 || optical_sensor.get_hue() >= 0 && optical_sensor.get_hue() <= 15 && redOrBlue == true) {
+    if (optical_sensor.get_hue() >= 345 && optical_sensor.get_hue() <= 360 || optical_sensor.get_hue() >= 0 && optical_sensor.get_hue() <= 15 && buttonText == "b") {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
     }
-    if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280 && redOrBlue == false) {
+    if (optical_sensor.get_hue() >= 210 && optical_sensor.get_hue() <= 280 && buttonText == "r") {
       roller.move_velocity(100);
     } else {
       roller.move_velocity(0);
